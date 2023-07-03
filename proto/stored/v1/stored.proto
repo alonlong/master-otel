@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package proto.stored.v1;
+
+option go_package = "master-otel/internal/proto/stored/v1;stored";
+
+service StoredService {
+    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
+    rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+}
+
+message User {
+    string email = 1;
+    string username = 2;
+}
+
+message CreateUserRequest {
+    User user = 1;
+}
+
+message CreateUserResponse {
+    uint32 id = 1;
+}
+
+message GetUserRequest {
+    uint32 id = 1;
+}
+
+message GetUserResponse {
+    User user = 1;
+}
+
+message DeleteUserRequest {
+    uint32 id = 1;
+}
+
+message DeleteUserResponse {
+}
