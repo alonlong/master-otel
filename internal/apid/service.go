@@ -12,6 +12,9 @@ import (
 	"master-otel/pkg/log"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -38,6 +41,15 @@ func NewService(httpAddr string, ctldAddr string) *Service {
 }
 
 func (s *Service) initRoutes() {
+	s.e.Use(otelecho.Middleware("apid"))
+	s.e.Use(middleware.Recover())
+	s.e.HTTPErrorHandler = func(err error, c echo.Context) {
+		ctx := c.Request().Context()
+		trace.SpanFromContext(ctx).RecordError(err)
+
+		s.e.DefaultHTTPErrorHandler(err, c)
+	}
+
 	s.e.POST("/user", s.createUser)
 }
 

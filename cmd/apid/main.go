@@ -9,6 +9,7 @@ import (
 	"master-otel/internal/apid"
 	"master-otel/pkg/log"
 
+	"github.com/uptrace/opentelemetry-go-extra/otelplay"
 	"go.uber.org/zap"
 )
 
@@ -22,6 +23,9 @@ func main() {
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
+
+	otelShutdown := otelplay.ConfigureOpentelemetry(ctx)
+	defer otelShutdown()
 
 	apidService := apid.NewService(*httpAddr, *ctldAddr)
 	if err := apidService.Run(ctx); err != nil {
