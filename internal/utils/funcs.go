@@ -9,6 +9,7 @@ import (
 	"master-otel/pkg/log"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -23,6 +24,7 @@ func GrpcDial(ctx context.Context, addr string, dialOpts ...grpc.DialOption) (*g
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithBlock())
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	opts = append(opts, grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
 	opts = append(opts, dialOpts...)
 	conn, err := grpc.DialContext(ctx, addr, opts...)
 	if err != nil {
@@ -34,6 +36,7 @@ func GrpcDial(ctx context.Context, addr string, dialOpts ...grpc.DialOption) (*g
 func NewGrpcServer() *grpc.Server {
 	return grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
+			grpc.UnaryServerInterceptor(otelgrpc.UnaryServerInterceptor()),
 			recovery.UnaryServerInterceptor(recovery.WithRecoveryHandler(func(p any) (err error) {
 				log.Error("recovered from panic", zap.Any("panic", p), zap.Any("stack", debug.Stack()))
 				return status.Errorf(codes.Internal, "%s", p)

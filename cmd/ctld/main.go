@@ -12,6 +12,7 @@ import (
 	"master-otel/internal/utils"
 	"master-otel/pkg/log"
 
+	"github.com/uptrace/opentelemetry-go-extra/otelplay"
 	"go.uber.org/zap"
 )
 
@@ -25,6 +26,9 @@ func main() {
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
+
+	otelShutdown := otelplay.ConfigureOpentelemetry(context.Background())
+	defer otelShutdown()
 
 	grpcListener, err := net.Listen("tcp", *grpcAddr)
 	if err != nil {

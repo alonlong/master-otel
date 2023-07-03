@@ -41,7 +41,7 @@ func NewService(httpAddr string, ctldAddr string) *Service {
 }
 
 func (s *Service) initRoutes() {
-	s.e.Use(otelecho.Middleware("apid"))
+	s.e.Use(otelecho.Middleware("apid:apid"))
 	s.e.Use(middleware.Recover())
 	s.e.HTTPErrorHandler = func(err error, c echo.Context) {
 		ctx := c.Request().Context()

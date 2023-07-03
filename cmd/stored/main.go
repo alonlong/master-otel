@@ -15,6 +15,7 @@ import (
 	"master-otel/pkg/log"
 
 	"github.com/joho/godotenv"
+	"github.com/uptrace/opentelemetry-go-extra/otelplay"
 	"go.uber.org/zap"
 )
 
@@ -29,6 +30,10 @@ func main() {
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
+
+	otelShutdown := otelplay.ConfigureOpentelemetry(context.Background())
+	defer otelShutdown()
+
 	ln, err := net.Listen("tcp", *grpcAddr)
 	if err != nil {
 		log.Fatal("net listen", zap.String("grpc-addr", *grpcAddr), zap.Error(err))

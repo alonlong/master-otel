@@ -3,10 +3,14 @@ package db
 import (
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	"time"
 
 	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Config struct {
@@ -48,15 +52,15 @@ func New(cfg *Config) (*gorm.DB, error) {
 		cfg.Port,
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		// Logger: logger.New(
-		// 	log.New(os.Stdout, "\r\n", log.LstdFlags),
-		// 	logger.Config{
-		// 		SlowThreshold:             time.Second,   // slow SQL threshold
-		// 		LogLevel:                  logger.Silent, // log level
-		// 		IgnoreRecordNotFoundError: true,          // ignore ErrRecordNotFound
-		// 		Colorful:                  false,         // disable color
-		// 	},
-		// ),
+		Logger: logger.New(
+			log.New(os.Stdout, "\r\n", log.LstdFlags),
+			logger.Config{
+				SlowThreshold:             time.Second,   // slow SQL threshold
+				LogLevel:                  logger.Silent, // log level
+				IgnoreRecordNotFoundError: true,          // ignore ErrRecordNotFound
+				Colorful:                  false,         // disable color
+			},
+		),
 	})
 	if err := db.Use(otelgorm.NewPlugin()); err != nil {
 		return nil, fmt.Errorf("otelgorm plugin: %w", err)

@@ -14,3 +14,14 @@ services:
     ports:
       - "5432:5432"
     restart: always
+  
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - LOG_LEVEL=info
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    restart: always
