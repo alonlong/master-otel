@@ -24,7 +24,7 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
 
-	otelShutdown := otelplay.ConfigureOpentelemetry(ctx)
+	otelShutdown := otelplay.ConfigureOpentelemetry(context.Background())
 	defer otelShutdown()
 
 	apidService := apid.NewService(*httpAddr, *ctldAddr)

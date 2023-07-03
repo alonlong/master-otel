@@ -8,7 +8,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/uptrace/opentelemetry-go-extra/otelplay"
-	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
 
@@ -18,7 +17,11 @@ type CreateUserPOST struct {
 }
 
 func (s *Service) createUser(c echo.Context) error {
-	log.Info("create user", zap.String("trace-url", otelplay.TraceURL(trace.SpanFromContext(c.Request().Context()))))
+	ctx := c.Request().Context()
+
+	log.WithContext(ctx).Info("create user", zap.String("remote-addr", c.Request().RemoteAddr))
+	otelplay.PrintTraceID(ctx)
+	// log.WithContext(c.Request().Context()).Info("create user", zap.String("remote-addr", c.Request().RemoteAddr))
 
 	var req CreateUserPOST
 	if err := c.Bind(&req); err != nil {
