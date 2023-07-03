@@ -2,35 +2,13 @@ syntax = "proto3";
 
 package proto.ctld.v1;
 
+import "google/protobuf/empty.proto";
+import "proto/common/v1/common.proto";
+
 option go_package = "master-otel/internal/proto/ctld/v1;ctld";
 
 service CtldService {
-    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
-    rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
-    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
-}
-
-message CreateUserRequest {
-    string email = 1;
-    string username = 2;
-}
-
-message CreateUserResponse {
-    uint32 id = 1;
-}
-
-message GetUserRequest {
-    uint32 id = 1;
-}
-
-message GetUserResponse {
-    string email = 1;
-    string username = 2;
-}
-
-message DeleteUserRequest {
-    uint32 id = 1;
-}
-
-message DeleteUserResponse {
+    rpc CreateUser(common.v1.User) returns (common.v1.User) {}
+    rpc GetUser(common.v1.Identity) returns (common.v1.User) {}
+    rpc DeleteUser(common.v1.Identity) returns (google.protobuf.Empty) {}
 }

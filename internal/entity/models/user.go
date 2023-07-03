@@ -1,7 +1,7 @@
 package models
 
 import (
-	storedv1 "master-otel/internal/proto/stored/v1"
+	commonv1 "master-otel/internal/proto/common/v1"
 )
 
 type User struct {
@@ -10,8 +10,9 @@ type User struct {
 	Username string `gorm:"column:username"`
 }
 
-func (e *User) ToProto() *storedv1.User {
-	return &storedv1.User{
+func (e *User) ToProto() *commonv1.User {
+	return &commonv1.User{
+		Id:       e.ID,
 		Email:    e.Email,
 		Username: e.Username,
 	}

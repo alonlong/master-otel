@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package proto.common.v1;
+
+option go_package = "master-otel/internal/proto/common/v1;common";
+
+message User {
+    uint32 id = 1;
+    string email = 2;
+    string username = 3;
+}
+
+message Identity {
+    uint32 id = 1;
+}

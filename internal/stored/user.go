@@ -4,26 +4,25 @@ import (
 	"context"
 
 	"master-otel/internal/entity/models"
-	storedv1 "master-otel/internal/proto/stored/v1"
+	commonv1 "master-otel/internal/proto/common/v1"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func (s *Service) CreateUser(ctx context.Context, req *storedv1.CreateUserRequest) (*storedv1.CreateUserResponse, error) {
+func (s *Service) CreateUser(ctx context.Context, req *commonv1.User) (*commonv1.User, error) {
 	entity := models.User{
-		Email:    req.GetUser().GetEmail(),
-		Username: req.GetUser().GetUsername(),
+		Email:    req.GetEmail(),
+		Username: req.GetUsername(),
 	}
 	if err := s.store.CreateUser(&entity); err != nil {
-		return nil, status.Errorf(codes.Internal, "create user %s: %v", req.GetUser().GetEmail(), err)
+		return nil, status.Errorf(codes.Internal, "create user %s: %v", req.GetEmail(), err)
 	}
-	return &storedv1.CreateUserResponse{
-		Id: entity.ID,
-	}, nil
+	return entity.ToProto(), nil
 }
 
-func (s *Service) GetUser(ctx context.Context, req *storedv1.GetUserRequest) (*storedv1.GetUserResponse, error) {
+func (s *Service) GetUser(ctx context.Context, req *commonv1.Identity) (*commonv1.User, error) {
 	entity, err := s.store.GetUser(req.GetId())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "query user %d: %v", req.GetId(), err)
@@ -31,14 +30,12 @@ func (s *Service) GetUser(ctx context.Context, req *storedv1.GetUserRequest) (*s
 	if entity == nil {
 		return nil, status.Errorf(codes.NotFound, "user %d not found", req.GetId())
 	}
-	return &storedv1.GetUserResponse{
-		User: entity.ToProto(),
-	}, nil
+	return entity.ToProto(), nil
 }
 
-func (s *Service) DeleteUser(ctx context.Context, req *storedv1.DeleteUserRequest) (*storedv1.DeleteUserResponse, error) {
+func (s *Service) DeleteUser(ctx context.Context, req *commonv1.Identity) (*empty.Empty, error) {
 	if err := s.store.DeleteUser(req.GetId()); err != nil {
 		return nil, status.Errorf(codes.Internal, "delete user %d: %v", req.GetId(), err)
 	}
-	return &storedv1.DeleteUserResponse{}, nil
+	return &empty.Empty{}, nil
 }

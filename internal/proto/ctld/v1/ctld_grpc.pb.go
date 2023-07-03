@@ -8,9 +8,11 @@ package ctld
 
 import (
 	context "context"
+	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	v1 "master-otel/internal/proto/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,9 +24,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CtldServiceClient interface {
-	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
-	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
-	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
+	CreateUser(ctx context.Context, in *v1.User, opts ...grpc.CallOption) (*v1.User, error)
+	GetUser(ctx context.Context, in *v1.Identity, opts ...grpc.CallOption) (*v1.User, error)
+	DeleteUser(ctx context.Context, in *v1.Identity, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
 type ctldServiceClient struct {
@@ -35,8 +37,8 @@ func NewCtldServiceClient(cc grpc.ClientConnInterface) CtldServiceClient {
 	return &ctldServiceClient{cc}
 }
 
-func (c *ctldServiceClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error) {
-	out := new(CreateUserResponse)
+func (c *ctldServiceClient) CreateUser(ctx context.Context, in *v1.User, opts ...grpc.CallOption) (*v1.User, error) {
+	out := new(v1.User)
 	err := c.cc.Invoke(ctx, "/proto.ctld.v1.CtldService/CreateUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -44,8 +46,8 @@ func (c *ctldServiceClient) CreateUser(ctx context.Context, in *CreateUserReques
 	return out, nil
 }
 
-func (c *ctldServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
-	out := new(GetUserResponse)
+func (c *ctldServiceClient) GetUser(ctx context.Context, in *v1.Identity, opts ...grpc.CallOption) (*v1.User, error) {
+	out := new(v1.User)
 	err := c.cc.Invoke(ctx, "/proto.ctld.v1.CtldService/GetUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -53,8 +55,8 @@ func (c *ctldServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opt
 	return out, nil
 }
 
-func (c *ctldServiceClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error) {
-	out := new(DeleteUserResponse)
+func (c *ctldServiceClient) DeleteUser(ctx context.Context, in *v1.Identity, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/proto.ctld.v1.CtldService/DeleteUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -66,22 +68,22 @@ func (c *ctldServiceClient) DeleteUser(ctx context.Context, in *DeleteUserReques
 // All implementations should embed UnimplementedCtldServiceServer
 // for forward compatibility
 type CtldServiceServer interface {
-	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
-	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
-	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
+	CreateUser(context.Context, *v1.User) (*v1.User, error)
+	GetUser(context.Context, *v1.Identity) (*v1.User, error)
+	DeleteUser(context.Context, *v1.Identity) (*empty.Empty, error)
 }
 
 // UnimplementedCtldServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedCtldServiceServer struct {
 }
 
-func (UnimplementedCtldServiceServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
+func (UnimplementedCtldServiceServer) CreateUser(context.Context, *v1.User) (*v1.User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedCtldServiceServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
+func (UnimplementedCtldServiceServer) GetUser(context.Context, *v1.Identity) (*v1.User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
-func (UnimplementedCtldServiceServer) DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error) {
+func (UnimplementedCtldServiceServer) DeleteUser(context.Context, *v1.Identity) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
 
@@ -97,7 +99,7 @@ func RegisterCtldServiceServer(s grpc.ServiceRegistrar, srv CtldServiceServer) {
 }
 
 func _CtldService_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateUserRequest)
+	in := new(v1.User)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -109,13 +111,13 @@ func _CtldService_CreateUser_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/proto.ctld.v1.CtldService/CreateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CtldServiceServer).CreateUser(ctx, req.(*CreateUserRequest))
+		return srv.(CtldServiceServer).CreateUser(ctx, req.(*v1.User))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _CtldService_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserRequest)
+	in := new(v1.Identity)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -127,13 +129,13 @@ func _CtldService_GetUser_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/proto.ctld.v1.CtldService/GetUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CtldServiceServer).GetUser(ctx, req.(*GetUserRequest))
+		return srv.(CtldServiceServer).GetUser(ctx, req.(*v1.Identity))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _CtldService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteUserRequest)
+	in := new(v1.Identity)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -145,7 +147,7 @@ func _CtldService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/proto.ctld.v1.CtldService/DeleteUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CtldServiceServer).DeleteUser(ctx, req.(*DeleteUserRequest))
+		return srv.(CtldServiceServer).DeleteUser(ctx, req.(*v1.Identity))
 	}
 	return interceptor(ctx, in, info, handler)
 }
