@@ -19,3 +19,8 @@ init-db:
 	docker-compose rm -f postgres
 	sudo rm -rf data
 	docker-compose up -d
+
+clean-db:
+	docker-compose kill postgres
+	docker-compose rm -f postgres
+	sudo rm -rf data
