@@ -16,14 +16,14 @@ func (s *Service) CreateUser(ctx context.Context, req *commonv1.User) (*commonv1
 		Email:    req.GetEmail(),
 		Username: req.GetUsername(),
 	}
-	if err := s.store.CreateUser(&entity); err != nil {
+	if err := s.store.CreateUser(ctx, &entity); err != nil {
 		return nil, status.Errorf(codes.Internal, "create user %s: %v", req.GetEmail(), err)
 	}
 	return entity.ToProto(), nil
 }
 
 func (s *Service) GetUser(ctx context.Context, req *commonv1.Identity) (*commonv1.User, error) {
-	entity, err := s.store.GetUser(req.GetId())
+	entity, err := s.store.GetUser(ctx, req.GetId())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "query user %d: %v", req.GetId(), err)
 	}
@@ -34,7 +34,7 @@ func (s *Service) GetUser(ctx context.Context, req *commonv1.Identity) (*commonv
 }
 
 func (s *Service) DeleteUser(ctx context.Context, req *commonv1.Identity) (*empty.Empty, error) {
-	if err := s.store.DeleteUser(req.GetId()); err != nil {
+	if err := s.store.DeleteUser(ctx, req.GetId()); err != nil {
 		return nil, status.Errorf(codes.Internal, "delete user %d: %v", req.GetId(), err)
 	}
 	return &empty.Empty{}, nil
