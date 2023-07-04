@@ -39,8 +39,9 @@ func NewService(httpAddr string, ctldAddr string, service string) *Service {
 }
 
 func (s *Service) initRoutes(service string) {
-	s.e.Use(utils.TraceMiddleware(service))
 	s.e.Use(middleware.Recover())
+	s.e.Use(utils.TraceMiddleware(service))
+	s.e.Use(utils.LoggerMiddleware())
 
 	s.e.POST("/user", s.createUser)
 }

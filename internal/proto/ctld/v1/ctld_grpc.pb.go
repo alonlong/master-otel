@@ -8,7 +8,6 @@ package ctld
 
 import (
 	context "context"
-	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -25,8 +24,6 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CtldServiceClient interface {
 	CreateUser(ctx context.Context, in *v1.User, opts ...grpc.CallOption) (*v1.User, error)
-	GetUser(ctx context.Context, in *v1.Identity, opts ...grpc.CallOption) (*v1.User, error)
-	DeleteUser(ctx context.Context, in *v1.Identity, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
 type ctldServiceClient struct {
@@ -46,31 +43,11 @@ func (c *ctldServiceClient) CreateUser(ctx context.Context, in *v1.User, opts ..
 	return out, nil
 }
 
-func (c *ctldServiceClient) GetUser(ctx context.Context, in *v1.Identity, opts ...grpc.CallOption) (*v1.User, error) {
-	out := new(v1.User)
-	err := c.cc.Invoke(ctx, "/proto.ctld.v1.CtldService/GetUser", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *ctldServiceClient) DeleteUser(ctx context.Context, in *v1.Identity, opts ...grpc.CallOption) (*empty.Empty, error) {
-	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/proto.ctld.v1.CtldService/DeleteUser", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // CtldServiceServer is the server API for CtldService service.
 // All implementations should embed UnimplementedCtldServiceServer
 // for forward compatibility
 type CtldServiceServer interface {
 	CreateUser(context.Context, *v1.User) (*v1.User, error)
-	GetUser(context.Context, *v1.Identity) (*v1.User, error)
-	DeleteUser(context.Context, *v1.Identity) (*empty.Empty, error)
 }
 
 // UnimplementedCtldServiceServer should be embedded to have forward compatible implementations.
@@ -79,12 +56,6 @@ type UnimplementedCtldServiceServer struct {
 
 func (UnimplementedCtldServiceServer) CreateUser(context.Context, *v1.User) (*v1.User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
-}
-func (UnimplementedCtldServiceServer) GetUser(context.Context, *v1.Identity) (*v1.User, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
-}
-func (UnimplementedCtldServiceServer) DeleteUser(context.Context, *v1.Identity) (*empty.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
 
 // UnsafeCtldServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -116,42 +87,6 @@ func _CtldService_CreateUser_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CtldService_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v1.Identity)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CtldServiceServer).GetUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.ctld.v1.CtldService/GetUser",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CtldServiceServer).GetUser(ctx, req.(*v1.Identity))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CtldService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v1.Identity)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CtldServiceServer).DeleteUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.ctld.v1.CtldService/DeleteUser",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CtldServiceServer).DeleteUser(ctx, req.(*v1.Identity))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // CtldService_ServiceDesc is the grpc.ServiceDesc for CtldService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -162,14 +97,6 @@ var CtldService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateUser",
 			Handler:    _CtldService_CreateUser_Handler,
-		},
-		{
-			MethodName: "GetUser",
-			Handler:    _CtldService_GetUser_Handler,
-		},
-		{
-			MethodName: "DeleteUser",
-			Handler:    _CtldService_DeleteUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

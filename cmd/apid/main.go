@@ -21,7 +21,7 @@ var (
 func main() {
 	flag.Parse()
 
-	logger := log.Init(&log.Config{Filename: "logs/apid.log", MinLevel: zapcore.InfoLevel, Stdout: true})
+	logger := log.Init(&log.Config{Filename: "logs/apid.log", MinLevel: zapcore.DebugLevel, Stdout: true})
 	defer logger.Sync()
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)

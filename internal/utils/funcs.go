@@ -3,15 +3,18 @@ package utils
 import (
 	"context"
 	"fmt"
+	"os"
 	"runtime/debug"
 	"time"
 
 	"master-otel/pkg/log"
 
 	"github.com/google/uuid"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -20,8 +23,8 @@ import (
 )
 
 const (
-	KeyTraceID     = "trace-id"
-	KeyServiceName = "service"
+	KeyTraceID     = "trace_id"
+	KeyServiceName = "service_name"
 )
 
 // GrpcDial dials to the gRPC server
@@ -55,6 +58,45 @@ func TraceUnaryServerInterceptor(serivce string) grpc.UnaryServerInterceptor {
 	})
 }
 
+func LoggerUnaryServerInterceptor() logging.Logger {
+	return logging.LoggerFunc(func(ctx context.Context, level logging.Level, msg string, pairs ...any) {
+		if os.Getenv("GRPC_LOG_DEBUG") == "0" {
+			return
+		}
+		if msg == "started call" {
+			return
+		}
+
+		var fields []zapcore.Field
+		for i := 0; i < len(pairs); i += 2 {
+			key, value := pairs[i].(string), pairs[i+1].(string)
+			switch key {
+			case "grpc.method":
+				fields = append(fields, zap.String("method", value))
+			case "peer.address":
+				fields = append(fields, zap.String("peer", value))
+			case "grpc.time_ms":
+				fields = append(fields, zap.String("lantency", value+"ms"))
+			case "grpc.code":
+				fields = append(fields, zap.String("code", value))
+			case "grpc.error":
+				fields = append(fields, zap.String("error", value))
+			}
+		}
+		content := "grpc call"
+		switch level {
+		case logging.LevelDebug:
+			log.WithCtx(ctx).Debug(content, fields...)
+		case logging.LevelInfo:
+			log.WithCtx(ctx).Info(content, fields...)
+		case logging.LevelWarn:
+			log.WithCtx(ctx).Warn(content, fields...)
+		case logging.LevelError:
+			log.WithCtx(ctx).Error(content, fields...)
+		}
+	})
+}
+
 func TraceMiddleware(service string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -67,14 +109,41 @@ func TraceMiddleware(service string) echo.MiddlewareFunc {
 	}
 }
 
+func LoggerMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			start := time.Now()
+			realIp := c.RealIP()
+			method := c.Request().Method
+			uri := c.Request().RequestURI
+			err := next(c)
+			status := c.Response().Status
+			latency := time.Since(start)
+			size := c.Response().Size
+			log.WithCtx(c.Request().Context()).Info(
+				"http request",
+				zap.String("real_ip", realIp),
+				zap.String("uri", uri),
+				zap.String("method", method),
+				zap.Int64("bytes_out", size),
+				zap.Int("code", status),
+				zap.Error(err),
+				zap.String("latency", latency.String()),
+			)
+			return nil
+		}
+	}
+}
+
 func NewGrpcServer(service string) *grpc.Server {
 	return grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			grpc.UnaryServerInterceptor(TraceUnaryServerInterceptor(service)),
 			recovery.UnaryServerInterceptor(recovery.WithRecoveryHandler(func(p any) (err error) {
 				log.Error("recovered from panic", zap.Any("panic", p), zap.Any("stack", debug.Stack()))
 				return status.Errorf(codes.Internal, "%s", p)
 			})),
+			grpc.UnaryServerInterceptor(TraceUnaryServerInterceptor(service)),
+			logging.UnaryServerInterceptor(LoggerUnaryServerInterceptor()),
 		),
 		grpc.ChainStreamInterceptor(
 			recovery.StreamServerInterceptor(recovery.WithRecoveryHandler(func(p any) (err error) {
