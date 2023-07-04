@@ -9,8 +9,8 @@ import (
 	"master-otel/internal/apid"
 	"master-otel/pkg/log"
 
-	"github.com/uptrace/opentelemetry-go-extra/otelplay"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var (
@@ -21,13 +21,13 @@ var (
 func main() {
 	flag.Parse()
 
+	logger := log.Init(&log.Config{Filename: "logs/apid.log", MinLevel: zapcore.InfoLevel, Stdout: true})
+	defer logger.Sync()
+
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
 
-	otelShutdown := otelplay.ConfigureOpentelemetry(context.Background())
-	defer otelShutdown()
-
-	apidService := apid.NewService(*httpAddr, *ctldAddr)
+	apidService := apid.NewService(*httpAddr, *ctldAddr, "apid")
 	if err := apidService.Run(ctx); err != nil {
 		log.Fatal("run apid server", zap.Error(err))
 	}

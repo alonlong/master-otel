@@ -13,8 +13,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
-	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -27,7 +25,7 @@ type Service struct {
 	ctldClient ctldv1.CtldServiceClient
 }
 
-func NewService(httpAddr string, ctldAddr string) *Service {
+func NewService(httpAddr string, ctldAddr string, service string) *Service {
 	s := &Service{
 		e:        echo.New(),
 		ctldAddr: ctldAddr,
@@ -36,19 +34,13 @@ func NewService(httpAddr string, ctldAddr string) *Service {
 	s.e.Logger.SetOutput(io.Discard)
 	s.e.HideBanner = true
 	s.e.HidePort = true
-	s.initRoutes()
+	s.initRoutes(service)
 	return s
 }
 
-func (s *Service) initRoutes() {
-	s.e.Use(otelecho.Middleware("apid:apid"))
+func (s *Service) initRoutes(service string) {
+	s.e.Use(utils.TraceMiddleware(service))
 	s.e.Use(middleware.Recover())
-	s.e.HTTPErrorHandler = func(err error, c echo.Context) {
-		ctx := c.Request().Context()
-		trace.SpanFromContext(ctx).RecordError(err)
-
-		s.e.DefaultHTTPErrorHandler(err, c)
-	}
 
 	s.e.POST("/user", s.createUser)
 }

@@ -12,8 +12,8 @@ import (
 	"master-otel/internal/utils"
 	"master-otel/pkg/log"
 
-	"github.com/uptrace/opentelemetry-go-extra/otelplay"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var (
@@ -24,11 +24,11 @@ var (
 func main() {
 	flag.Parse()
 
+	logger := log.Init(&log.Config{Filename: "logs/ctld.log", MinLevel: zapcore.InfoLevel, Stdout: true})
+	defer logger.Sync()
+
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
-
-	otelShutdown := otelplay.ConfigureOpentelemetry(context.Background())
-	defer otelShutdown()
 
 	grpcListener, err := net.Listen("tcp", *grpcAddr)
 	if err != nil {
@@ -39,7 +39,7 @@ func main() {
 		log.Fatal("run ctld server", zap.Error(err))
 	}
 
-	gs := utils.NewGrpcServer()
+	gs := utils.NewGrpcServer("ctld")
 	ctldv1.RegisterCtldServiceServer(gs, ctldService)
 	go func() {
 		log.Info("start grpc server", zap.String("grpc-addr", *grpcAddr))

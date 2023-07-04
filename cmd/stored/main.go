@@ -15,8 +15,8 @@ import (
 	"master-otel/pkg/log"
 
 	"github.com/joho/godotenv"
-	"github.com/uptrace/opentelemetry-go-extra/otelplay"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var (
@@ -28,11 +28,11 @@ func main() {
 
 	godotenv.Load(".env")
 
+	logger := log.Init(&log.Config{Filename: "logs/stored.log", MinLevel: zapcore.InfoLevel, Stdout: true})
+	defer logger.Sync()
+
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
-
-	otelShutdown := otelplay.ConfigureOpentelemetry(context.Background())
-	defer otelShutdown()
 
 	ln, err := net.Listen("tcp", *grpcAddr)
 	if err != nil {
@@ -54,7 +54,7 @@ func main() {
 	}
 	storedService.Run(ctx)
 
-	gs := utils.NewGrpcServer()
+	gs := utils.NewGrpcServer("stored")
 	storedv1.RegisterStoredServiceServer(gs, storedService)
 	go func() {
 		log.Info("start grpc server", zap.String("grpc-addr", *grpcAddr))

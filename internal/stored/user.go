@@ -8,15 +8,13 @@ import (
 	"master-otel/pkg/log"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/uptrace/opentelemetry-go-extra/otelplay"
-	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 func (s *Service) CreateUser(ctx context.Context, req *commonv1.User) (*commonv1.User, error) {
-	log.Info("create user", zap.String("trace", otelplay.TraceURL(trace.SpanFromContext(ctx))))
+	log.WithCtx(ctx).Info("create user", zap.String("username", req.GetUsername()))
 	entity := models.User{
 		Email:    req.GetEmail(),
 		Username: req.GetUsername(),
