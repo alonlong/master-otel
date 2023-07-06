@@ -76,7 +76,7 @@ func LoggerUnaryServerInterceptor() logging.Logger {
 			case "peer.address":
 				fields = append(fields, zap.String("peer", value))
 			case "grpc.time_ms":
-				fields = append(fields, zap.String("lantency", value+"ms"))
+				fields = append(fields, zap.String("elapsed", value+"ms"))
 			case "grpc.code":
 				fields = append(fields, zap.String("code", value))
 			case "grpc.error":
@@ -109,6 +109,11 @@ func TraceMiddleware(service string) echo.MiddlewareFunc {
 	}
 }
 
+func ContextWithTrace(ctx context.Context, service string) context.Context {
+	trace := uuid.New().String()
+	return log.AddCtx(ctx, zap.String(KeyServiceName, service), zap.String(KeyTraceID, trace))
+}
+
 func LoggerMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -118,17 +123,17 @@ func LoggerMiddleware() echo.MiddlewareFunc {
 			uri := c.Request().RequestURI
 			err := next(c)
 			status := c.Response().Status
-			latency := time.Since(start)
+			elapsed := time.Since(start)
 			size := c.Response().Size
 			log.WithCtx(c.Request().Context()).Info(
-				"http request",
+				"http call",
 				zap.String("real_ip", realIp),
 				zap.String("uri", uri),
 				zap.String("method", method),
 				zap.Int64("bytes_out", size),
 				zap.Int("code", status),
 				zap.Error(err),
-				zap.String("latency", latency.String()),
+				zap.String("elapsed", elapsed.String()),
 			)
 			return nil
 		}

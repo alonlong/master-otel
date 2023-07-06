@@ -1,12 +1,13 @@
 package db
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"log"
-	"os"
+	"master-otel/pkg/log"
 	"time"
 
+	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -51,15 +52,7 @@ func New(cfg *Config) (*gorm.DB, error) {
 		cfg.Port,
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.New(
-			log.New(os.Stdout, "\r\n", log.LstdFlags),
-			logger.Config{
-				SlowThreshold:             time.Second,   // slow SQL threshold
-				LogLevel:                  logger.Silent, // log level
-				IgnoreRecordNotFoundError: true,          // ignore ErrRecordNotFound
-				Colorful:                  false,         // disable color
-			},
-		),
+		Logger: &customLogger{},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("gorm open: %w", err)
@@ -72,4 +65,30 @@ func New(cfg *Config) (*gorm.DB, error) {
 		return nil, fmt.Errorf("ping db: %w", err)
 	}
 	return db, err
+}
+
+type customLogger struct {
+}
+
+// LogMode log mode
+func (l *customLogger) LogMode(level logger.LogLevel) logger.Interface {
+	return l
+}
+
+// Info print info
+func (l customLogger) Info(ctx context.Context, msg string, data ...interface{}) {
+}
+
+// Warn print warn messages
+func (l customLogger) Warn(ctx context.Context, msg string, data ...interface{}) {
+}
+
+// Error print error messages
+func (l customLogger) Error(ctx context.Context, msg string, data ...interface{}) {
+}
+
+// Trace print sql message
+func (l customLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
+	sql, rows := fc()
+	log.WithCtx(ctx).Info("database call", zap.String("sql", sql), zap.Int64("rows", rows), zap.String("elapsed", time.Since(begin).String()), zap.Error(err))
 }
