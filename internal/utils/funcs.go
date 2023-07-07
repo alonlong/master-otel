@@ -83,7 +83,7 @@ func LoggerUnaryServerInterceptor() logging.Logger {
 				fields = append(fields, zap.String("error", value))
 			}
 		}
-		content := "grpc call"
+		content := "grpc"
 		switch level {
 		case logging.LevelDebug:
 			log.WithCtx(ctx).Debug(content, fields...)
@@ -100,7 +100,7 @@ func LoggerUnaryServerInterceptor() logging.Logger {
 func TraceMiddleware(service string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			trace := uuid.New().String()
+			trace := NewUUID()
 			ctx := log.AddCtx(c.Request().Context(), zap.String(KeyServiceName, service), zap.String(KeyTraceID, trace))
 			ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs(KeyTraceID, trace))
 			c.SetRequest(c.Request().WithContext(ctx))
@@ -109,8 +109,12 @@ func TraceMiddleware(service string) echo.MiddlewareFunc {
 	}
 }
 
+func NewUUID() string {
+	return uuid.NewString()[0:8]
+}
+
 func ContextWithTrace(ctx context.Context, service string) context.Context {
-	trace := uuid.New().String()
+	trace := NewUUID()
 	return log.AddCtx(ctx, zap.String(KeyServiceName, service), zap.String(KeyTraceID, trace))
 }
 
@@ -121,12 +125,19 @@ func LoggerMiddleware() echo.MiddlewareFunc {
 			realIp := c.RealIP()
 			method := c.Request().Method
 			uri := c.Request().RequestURI
+			log.WithCtx(c.Request().Context()).Info(
+				"http",
+				zap.String("real_ip", realIp),
+				zap.String("uri", uri),
+				zap.String("method", method),
+				zap.Int64("bytes_in", c.Request().ContentLength),
+			)
 			err := next(c)
 			status := c.Response().Status
 			elapsed := time.Since(start)
 			size := c.Response().Size
 			log.WithCtx(c.Request().Context()).Info(
-				"http call",
+				"http",
 				zap.String("real_ip", realIp),
 				zap.String("uri", uri),
 				zap.String("method", method),

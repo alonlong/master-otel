@@ -74,7 +74,7 @@ func newZapCore(cfg *Config) zapcore.Core {
 	encoder := zapcore.EncoderConfig{
 		CallerKey:      "line",
 		LevelKey:       "level_name",
-		MessageKey:     "msg",
+		MessageKey:     "api",
 		TimeKey:        "log_time",
 		StacktraceKey:  "stacktrace",
 		LineEnding:     zapcore.DefaultLineEnding,
