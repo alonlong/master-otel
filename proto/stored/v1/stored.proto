@@ -8,4 +8,5 @@ option go_package = "master-otel/internal/proto/stored/v1;stored";
 
 service StoredService {
     rpc CreateUser(common.v1.User) returns (common.v1.User) {}
+    rpc CreateEmail(common.v1.Email) returns (common.v1.Email) {}
 }

@@ -13,3 +13,10 @@ message User {
 message Identity {
     uint32 id = 1;
 }
+
+message Email {
+    uint32 id = 1;
+    string email = 2;
+    string subject = 3;
+    string body = 4;
+}

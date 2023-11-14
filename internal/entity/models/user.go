@@ -5,14 +5,14 @@ import (
 )
 
 type User struct {
-	ID       uint32 `gorm:"column:id"`
+	Id       uint32 `gorm:"column:id"`
 	Email    string `gorm:"column:email"`
 	Username string `gorm:"column:username"`
 }
 
 func (e *User) ToProto() *commonv1.User {
 	return &commonv1.User{
-		Id:       e.ID,
+		Id:       e.Id,
 		Email:    e.Email,
 		Username: e.Username,
 	}
