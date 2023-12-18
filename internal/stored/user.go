@@ -14,12 +14,27 @@ import (
 
 func (s *Service) CreateUser(ctx context.Context, req *commonv1.User) (*commonv1.User, error) {
 	log.WithCtx(ctx).Info("create user", zap.String("username", req.GetUsername()))
-	entity := models.User{
+	e := models.User{
 		Email:    req.GetEmail(),
 		Username: req.GetUsername(),
 	}
-	if err := s.store.CreateUser(ctx, &entity); err != nil {
+	if err := s.store.CreateUser(ctx, &e); err != nil {
 		return nil, status.Errorf(codes.Internal, "create user %s: %v", req.GetEmail(), err)
 	}
-	return entity.ToProto(), nil
+	return e.ToProto(), nil
+}
+
+func (s *Service) DeleteUser(ctx context.Context, req *commonv1.Identity) (*commonv1.Empty, error) {
+	log.WithCtx(ctx).Info("delete user", zap.Int64("id", req.GetId()))
+	user, err := s.store.GetUser(ctx, req.GetId())
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "get user %d: %v", req.GetId(), err)
+	}
+	if user == nil {
+		return nil, status.Errorf(codes.NotFound, "user %d not found", req.GetId())
+	}
+	if err := s.store.DeleteUser(ctx, req.GetId()); err != nil {
+		return nil, status.Errorf(codes.Internal, "delete user %d: %v", req.GetId(), err)
+	}
+	return &commonv1.Empty{}, nil
 }

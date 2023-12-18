@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CtldServiceClient interface {
 	CreateUser(ctx context.Context, in *v1.User, opts ...grpc.CallOption) (*v1.User, error)
-	CreateEmail(ctx context.Context, in *v1.Email, opts ...grpc.CallOption) (*v1.Email, error)
+	DeleteUser(ctx context.Context, in *v1.Identity, opts ...grpc.CallOption) (*v1.Empty, error)
 }
 
 type ctldServiceClient struct {
@@ -44,9 +44,9 @@ func (c *ctldServiceClient) CreateUser(ctx context.Context, in *v1.User, opts ..
 	return out, nil
 }
 
-func (c *ctldServiceClient) CreateEmail(ctx context.Context, in *v1.Email, opts ...grpc.CallOption) (*v1.Email, error) {
-	out := new(v1.Email)
-	err := c.cc.Invoke(ctx, "/proto.ctld.v1.CtldService/CreateEmail", in, out, opts...)
+func (c *ctldServiceClient) DeleteUser(ctx context.Context, in *v1.Identity, opts ...grpc.CallOption) (*v1.Empty, error) {
+	out := new(v1.Empty)
+	err := c.cc.Invoke(ctx, "/proto.ctld.v1.CtldService/DeleteUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *ctldServiceClient) CreateEmail(ctx context.Context, in *v1.Email, opts 
 // for forward compatibility
 type CtldServiceServer interface {
 	CreateUser(context.Context, *v1.User) (*v1.User, error)
-	CreateEmail(context.Context, *v1.Email) (*v1.Email, error)
+	DeleteUser(context.Context, *v1.Identity) (*v1.Empty, error)
 }
 
 // UnimplementedCtldServiceServer should be embedded to have forward compatible implementations.
@@ -68,8 +68,8 @@ type UnimplementedCtldServiceServer struct {
 func (UnimplementedCtldServiceServer) CreateUser(context.Context, *v1.User) (*v1.User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedCtldServiceServer) CreateEmail(context.Context, *v1.Email) (*v1.Email, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateEmail not implemented")
+func (UnimplementedCtldServiceServer) DeleteUser(context.Context, *v1.Identity) (*v1.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
 
 // UnsafeCtldServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -101,20 +101,20 @@ func _CtldService_CreateUser_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CtldService_CreateEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v1.Email)
+func _CtldService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.Identity)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CtldServiceServer).CreateEmail(ctx, in)
+		return srv.(CtldServiceServer).DeleteUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.ctld.v1.CtldService/CreateEmail",
+		FullMethod: "/proto.ctld.v1.CtldService/DeleteUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CtldServiceServer).CreateEmail(ctx, req.(*v1.Email))
+		return srv.(CtldServiceServer).DeleteUser(ctx, req.(*v1.Identity))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -131,8 +131,8 @@ var CtldService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CtldService_CreateUser_Handler,
 		},
 		{
-			MethodName: "CreateEmail",
-			Handler:    _CtldService_CreateEmail_Handler,
+			MethodName: "DeleteUser",
+			Handler:    _CtldService_DeleteUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

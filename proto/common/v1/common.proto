@@ -14,9 +14,4 @@ message Identity {
     int64 id = 1;
 }
 
-message Email {
-    int64 id = 1;
-    string email = 2;
-    string subject = 3;
-    string body = 4;
-}
+message Empty {}

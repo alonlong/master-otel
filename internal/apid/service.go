@@ -44,6 +44,7 @@ func (s *Service) initRoutes(service string) {
 	s.e.Use(utils.LoggerMiddleware())
 
 	s.e.POST("/user", s.createUser)
+	s.e.DELETE("/user/:id", s.deleteUser)
 }
 
 func (s *Service) Run(ctx context.Context) error {

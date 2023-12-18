@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StoredServiceClient interface {
 	CreateUser(ctx context.Context, in *v1.User, opts ...grpc.CallOption) (*v1.User, error)
-	CreateEmail(ctx context.Context, in *v1.Email, opts ...grpc.CallOption) (*v1.Email, error)
+	DeleteUser(ctx context.Context, in *v1.Identity, opts ...grpc.CallOption) (*v1.Empty, error)
 }
 
 type storedServiceClient struct {
@@ -44,9 +44,9 @@ func (c *storedServiceClient) CreateUser(ctx context.Context, in *v1.User, opts 
 	return out, nil
 }
 
-func (c *storedServiceClient) CreateEmail(ctx context.Context, in *v1.Email, opts ...grpc.CallOption) (*v1.Email, error) {
-	out := new(v1.Email)
-	err := c.cc.Invoke(ctx, "/proto.stored.v1.StoredService/CreateEmail", in, out, opts...)
+func (c *storedServiceClient) DeleteUser(ctx context.Context, in *v1.Identity, opts ...grpc.CallOption) (*v1.Empty, error) {
+	out := new(v1.Empty)
+	err := c.cc.Invoke(ctx, "/proto.stored.v1.StoredService/DeleteUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *storedServiceClient) CreateEmail(ctx context.Context, in *v1.Email, opt
 // for forward compatibility
 type StoredServiceServer interface {
 	CreateUser(context.Context, *v1.User) (*v1.User, error)
-	CreateEmail(context.Context, *v1.Email) (*v1.Email, error)
+	DeleteUser(context.Context, *v1.Identity) (*v1.Empty, error)
 }
 
 // UnimplementedStoredServiceServer should be embedded to have forward compatible implementations.
@@ -68,8 +68,8 @@ type UnimplementedStoredServiceServer struct {
 func (UnimplementedStoredServiceServer) CreateUser(context.Context, *v1.User) (*v1.User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedStoredServiceServer) CreateEmail(context.Context, *v1.Email) (*v1.Email, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateEmail not implemented")
+func (UnimplementedStoredServiceServer) DeleteUser(context.Context, *v1.Identity) (*v1.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
 
 // UnsafeStoredServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -101,20 +101,20 @@ func _StoredService_CreateUser_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _StoredService_CreateEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v1.Email)
+func _StoredService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.Identity)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(StoredServiceServer).CreateEmail(ctx, in)
+		return srv.(StoredServiceServer).DeleteUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.stored.v1.StoredService/CreateEmail",
+		FullMethod: "/proto.stored.v1.StoredService/DeleteUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StoredServiceServer).CreateEmail(ctx, req.(*v1.Email))
+		return srv.(StoredServiceServer).DeleteUser(ctx, req.(*v1.Identity))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -131,8 +131,8 @@ var StoredService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _StoredService_CreateUser_Handler,
 		},
 		{
-			MethodName: "CreateEmail",
-			Handler:    _StoredService_CreateEmail_Handler,
+			MethodName: "DeleteUser",
+			Handler:    _StoredService_DeleteUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
