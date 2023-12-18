@@ -20,3 +20,9 @@ message Email {
     string subject = 3;
     string body = 4;
 }
+
+message Attachment {
+    uint32 id = 1;
+    uint32 email = 2;
+    string attachment = 3;
+}

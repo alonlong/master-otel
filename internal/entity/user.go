@@ -10,16 +10,16 @@ import (
 )
 
 const (
-	UserTable = "users"
+	User = "users"
 )
 
 func (s *Store) CreateUser(ctx context.Context, entity *models.User) error {
-	return s.db.WithContext(ctx).Table(UserTable).Create(entity).Error
+	return s.db.WithContext(ctx).Table(User).Create(entity).Error
 }
 
 func (s *Store) GetUser(ctx context.Context, id uint32) (*models.User, error) {
 	var entity models.User
-	if err := s.db.WithContext(ctx).Table(UserTable).Where("id = ?", id).First(&entity).Error; err != nil {
+	if err := s.db.WithContext(ctx).Table(User).Where("id = ?", id).First(&entity).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -29,5 +29,5 @@ func (s *Store) GetUser(ctx context.Context, id uint32) (*models.User, error) {
 }
 
 func (s *Store) DeleteUser(ctx context.Context, id uint32) error {
-	return s.db.WithContext(ctx).Table(UserTable).Where("id = ?", id).Delete(&models.User{}).Error
+	return s.db.WithContext(ctx).Table(User).Where("id = ?", id).Delete(&models.User{}).Error
 }

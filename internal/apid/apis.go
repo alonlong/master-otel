@@ -2,8 +2,9 @@ package apid
 
 import (
 	"fmt"
-	"master-otel/internal/proto/common/v1"
 	"net/http"
+
+	commonv1 "master-otel/internal/proto/common/v1"
 
 	"github.com/labstack/echo/v4"
 )
@@ -25,7 +26,7 @@ func (s *Service) createUser(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, fmt.Errorf("bind user: %w", err))
 	}
-	user, err := s.ctldClient.CreateUser(c.Request().Context(), &common.User{
+	user, err := s.ctldClient.CreateUser(c.Request().Context(), &commonv1.User{
 		Email:    req.Email,
 		Username: req.Username,
 	})

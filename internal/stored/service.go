@@ -3,8 +3,10 @@ package stored
 import (
 	"context"
 	"fmt"
+
 	"master-otel/internal/entity"
 	storedv1 "master-otel/internal/proto/stored/v1"
+
 	"master-otel/pkg/db"
 )
 
