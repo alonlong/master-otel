@@ -5,24 +5,18 @@ package proto.common.v1;
 option go_package = "master-otel/internal/proto/common/v1;common";
 
 message User {
-    uint32 id = 1;
+    int64 id = 1;
     string email = 2;
     string username = 3;
 }
 
 message Identity {
-    uint32 id = 1;
+    int64 id = 1;
 }
 
 message Email {
-    uint32 id = 1;
+    int64 id = 1;
     string email = 2;
     string subject = 3;
     string body = 4;
-}
-
-message Attachment {
-    uint32 id = 1;
-    uint32 email = 2;
-    string attachment = 3;
 }
