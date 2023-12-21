@@ -2,7 +2,12 @@ syntax = "proto3";
 
 package proto.stored.v1;
 
+// import "proto/common/v1/common.proto";
+
 option go_package = "master-otel/internal/proto/stored/v1;stored";
 
 service StoredService {
+    // 创建用户接口
+
+    // 删除用户接口
 }

@@ -12,8 +12,8 @@ func httpError(c echo.Context, code int, err error) error {
 }
 
 type CreateUserPOST struct {
-	Email    string `json:"email"`
 	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 func (s *Service) createUser(c echo.Context) error {

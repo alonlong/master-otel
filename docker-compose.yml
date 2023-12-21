@@ -1,0 +1,10 @@
+# docker-compose.yml 文件定义 postgres 数据库容器
+# docker-compose version: 3.3
+# container name: postgres
+# 端口为 5432
+# 镜像为 postgres：15.2-alpine
+# 数据目录为 ./data
+# 数据库名称为 otel
+# 用户名为 postgres
+# 密码为 123456
+# 初始化脚本为 ./migrations/schema.sql
