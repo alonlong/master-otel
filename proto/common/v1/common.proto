@@ -3,15 +3,3 @@ syntax = "proto3";
 package proto.common.v1;
 
 option go_package = "master-otel/internal/proto/common/v1;common";
-
-message User {
-    int64 id = 1;
-    string email = 2;
-    string username = 3;
-}
-
-message Identity {
-    int64 id = 1;
-}
-
-message Empty {}

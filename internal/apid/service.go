@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	ctldv1 "master-otel/internal/proto/ctld/v1"
+	storedv1 "master-otel/internal/proto/stored/v1"
 	"master-otel/internal/utils"
 	"master-otel/pkg/log"
 
@@ -20,15 +20,15 @@ import (
 type Service struct {
 	e *echo.Echo
 
-	ctldAddr   string
-	ctldConn   *grpc.ClientConn
-	ctldClient ctldv1.CtldServiceClient
+	storedAddr   string
+	storedConn   *grpc.ClientConn
+	storedClient storedv1.StoredServiceClient
 }
 
 func NewService(httpAddr string, ctldAddr string, service string) *Service {
 	s := &Service{
-		e:        echo.New(),
-		ctldAddr: ctldAddr,
+		e:          echo.New(),
+		storedAddr: ctldAddr,
 	}
 	s.e.Server.Addr = httpAddr
 	s.e.Logger.SetOutput(io.Discard)
@@ -48,13 +48,13 @@ func (s *Service) initRoutes(service string) {
 }
 
 func (s *Service) Run(ctx context.Context) error {
-	ctldConn, err := utils.GrpcDial(ctx, s.ctldAddr)
+	storedConn, err := utils.GrpcDial(ctx, s.storedAddr)
 	if err != nil {
-		return fmt.Errorf("dial ctld %s: %w", s.ctldAddr, err)
+		return fmt.Errorf("dial ctld %s: %w", s.storedAddr, err)
 	}
-	s.ctldConn = ctldConn
-	s.ctldClient = ctldv1.NewCtldServiceClient(ctldConn)
-	log.Info("connect to ctld service", zap.String("addr", s.ctldAddr))
+	s.storedConn = storedConn
+	s.storedClient = storedv1.NewStoredServiceClient(storedConn)
+	log.Info("connect to ctld service", zap.String("addr", s.storedAddr))
 
 	// start the apid server
 	go func() {
@@ -70,8 +70,8 @@ func (s *Service) Shutdown() {
 	if err := s.e.Close(); err != nil {
 		log.Error("shutdown apid server", zap.Error(err))
 	}
-	if s.ctldConn != nil {
-		if err := s.ctldConn.Close(); err != nil {
+	if s.storedConn != nil {
+		if err := s.storedConn.Close(); err != nil {
 			log.Error("close ctld connection", zap.Error(err))
 		}
 	}

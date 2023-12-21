@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	httpAddr = flag.String("http-addr", "localhost:9084", "The http server's address")
-	ctldAddr = flag.String("ctld-addr", "localhost:9083", "The ctld server's address")
+	httpAddr   = flag.String("http-addr", "localhost:9083", "The http server's address")
+	storedAddr = flag.String("stored-addr", "localhost:9082", "The stored server's address")
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
 
-	apidService := apid.NewService(*httpAddr, *ctldAddr, "apid")
+	apidService := apid.NewService(*httpAddr, *storedAddr, "apid")
 	if err := apidService.Run(ctx); err != nil {
 		log.Fatal("run apid server", zap.Error(err))
 	}
